@@ -34,7 +34,7 @@ namespace CrowdFunding
             });
 
             services.AddDbContext<CrowdFundingContext>(
-                options => options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=CrowdFunding;Trusted_Connection=true"));
+                options => options.UseSqlServer(Configuration.GetConnectionString("CrowdFunding")));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
