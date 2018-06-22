@@ -1,5 +1,3 @@
-using System;
-
 namespace CrowdFunding.Models
 {
     public class ErrorViewModel
