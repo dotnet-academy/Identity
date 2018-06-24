@@ -1,9 +1,10 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CrowdFunding.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace CrowdFunding.Controllers
 {
@@ -16,148 +17,133 @@ namespace CrowdFunding.Controllers
             _context = context;
         }
 
-        // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var crowdFundingContext = _context.Project.Include(p => p.Category).Include(p => p.Person);
-            return View(await crowdFundingContext.ToListAsync());
-        }
-
-        // GET: Projects/Details/5
-        public async Task<IActionResult> Details(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var project = await _context.Project
+            var projects = await _context.Projects
                 .Include(p => p.Category)
                 .Include(p => p.Person)
-                .FirstOrDefaultAsync(m => m.ProjectId == id);
-            if (project == null)
-            {
+                .ToListAsync();
+
+            return View(projects);
+        }
+
+        public async Task<IActionResult> Details(long id)
+        {
+            var project =await GetProjectAsync(id);
+
+            if (project == null) {
                 return NotFound();
             }
 
             return View(project);
         }
 
-        // GET: Projects/Create
+        [Authorize]
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Category, "CategoryId", "Name");
-            ViewData["PersonId"] = new SelectList(_context.Person, "PersonId", "Email");
+            ViewData["CategoryId"] = new SelectList(
+                _context.Category, "CategoryId", "Name");
+
             return View();
         }
 
-        // POST: Projects/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Project project)
+        {
+            if (!ModelState.IsValid) {
+                return BadRequest();
+            }
+                
+            project.PersonId = UserId();
+            _context.Add(project);
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        public async Task<IActionResult> Edit(long id)
+        {
+            var project = await GetProjectAsync(id);
+            
+            if (project == null) {
+                return NotFound();
+            }
+
+            ViewData["CategoryId"] = new SelectList(
+                _context.Category, "CategoryId", "Name", project.CategoryId);
+
+            return View(project);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProjectId,PersonId,CategoryId,PictureUrl,Title,Description,Deadline,Goal")] Project project)
+        public async Task<IActionResult> Edit(long id, Project project)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(project);
+            var dbProject = await GetProjectAsync(id);
+
+            if (dbProject == null) {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid) {
+                
+                dbProject.Goal = project.Goal;
+                dbProject.Title = project.Title;
+                dbProject.Deadline = project.Deadline;
+                dbProject.CategoryId = project.CategoryId;
+                dbProject.PictureUrl = project.PictureUrl;
+                dbProject.Description = project.Description;
+
+                _context.Update(dbProject);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Category, "CategoryId", "Name", project.CategoryId);
-            ViewData["PersonId"] = new SelectList(_context.Person, "PersonId", "Email", project.PersonId);
+
+            ViewData["CategoryId"] = new SelectList(
+                _context.Category, "CategoryId", "Name", project.CategoryId);
+
             return View(project);
         }
 
-        // GET: Projects/Edit/5
-        public async Task<IActionResult> Edit(long? id)
+        public async Task<IActionResult> Delete(long id)
         {
-            if (id == null)
-            {
+            var project = await GetProjectAsync(id);
+
+            if (project == null) {
                 return NotFound();
             }
 
-            var project = await _context.Project.FindAsync(id);
-            if (project == null)
-            {
-                return NotFound();
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Category, "CategoryId", "Name", project.CategoryId);
-            ViewData["PersonId"] = new SelectList(_context.Person, "PersonId", "Email", project.PersonId);
             return View(project);
         }
 
-        // POST: Projects/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("ProjectId,PersonId,CategoryId,PictureUrl,Title,Description,Deadline,Goal")] Project project)
-        {
-            if (id != project.ProjectId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProjectExists(project.ProjectId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CategoryId"] = new SelectList(_context.Category, "CategoryId", "Name", project.CategoryId);
-            ViewData["PersonId"] = new SelectList(_context.Person, "PersonId", "Email", project.PersonId);
-            return View(project);
-        }
-
-        // GET: Projects/Delete/5
-        public async Task<IActionResult> Delete(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var project = await _context.Project
-                .Include(p => p.Category)
-                .Include(p => p.Person)
-                .FirstOrDefaultAsync(m => m.ProjectId == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            return View(project);
-        }
-
-        // POST: Projects/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var project = await _context.Project.FindAsync(id);
-            _context.Project.Remove(project);
+            var project = await GetProjectAsync(id);
+
+            if (project == null) {
+                return NotFound();
+            }
+
+            _context.Projects.Remove(project);
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProjectExists(long id)
-        {
-            return _context.Project.Any(e => e.ProjectId == id);
-        }
+        private Task<Project> GetProjectAsync(long id) =>
+            _context.Projects
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.ProjectId == id &&
+                    p.PersonId == UserId());
+
+        private long UserId() => 
+            long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
     }
 }

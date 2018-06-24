@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace CrowdFunding.Models
@@ -6,6 +7,8 @@ namespace CrowdFunding.Models
     public partial class Project
     {
         public long ProjectId { get; set; }
+
+        [BindNever]
         public long PersonId { get; set; }
         public long CategoryId { get; set; }
         public string PictureUrl { get; set; }

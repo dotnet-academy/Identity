@@ -10,12 +10,8 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" id="project-create-form">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="PersonId" class="control-label"></label>
-                <select asp-for="PersonId" class ="form-control" asp-items="ViewBag.PersonId"></select>
-            </div>
             <div class="form-group">
                 <label asp-for="CategoryId" class="control-label"></label>
                 <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
@@ -46,14 +42,25 @@
                 <span asp-validation-for="Goal" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input id="submit-project" type="submit" value="Create" class="btn btn-default" />
             </div>
         </form>
-    </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+        <div id="success-created" class="alert alert-success hidden" role="alert">
+            <p>Your project has been succesfully created!</p>
+
+            <a class="alert-link" asp-controller="projects" asp-action="create">Create new project</a> or
+            <a class="alert-link" asp-controller="projects" asp-action="index">View existing projects</a>
+        </div>
+
+        <div id="fail-created" class="alert alert-danger hidden" role="alert">
+            <p>There was an error creating your project...</p>
+
+            <a class="alert-link" asp-controller="projects" asp-action="create">Try again</a> or
+            <a class="alert-link" asp-controller="projects" asp-action="index">View existing projects</a>
+        </div>
+
+    </div>
 </div>
 
 @section Scripts {

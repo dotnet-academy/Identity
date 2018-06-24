@@ -1,7 +1,7 @@
 ﻿using CrowdFunding.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +22,13 @@ namespace CrowdFunding
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<CrowdFundingContext>(
-                options => options.UseSqlServer(Configuration.GetConnectionString("CrowdFunding")));
+                options => options.UseSqlServer(
+                    Configuration.GetConnectionString("CrowdFunding")));
+
+            services.AddIdentity<Person, IdentityRole<long>>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders()
+                .AddEntityFrameworkStores<CrowdFundingContext>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -30,25 +36,18 @@ namespace CrowdFunding
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
+            if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
-            }
-            else
-            {
+            } else {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseAuthentication();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvc().UseMvcWithDefaultRoute();
         }
     }
 }

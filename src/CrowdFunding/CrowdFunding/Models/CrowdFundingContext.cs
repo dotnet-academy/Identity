@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace CrowdFunding.Models
 {
-    public partial class CrowdFundingContext : DbContext
+    public partial class CrowdFundingContext : IdentityDbContext<Person, IdentityRole<long>, long>
     {
         public CrowdFundingContext()
         {
@@ -13,12 +15,14 @@ namespace CrowdFunding.Models
         {
         }
 
-        public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<Person> Person { get; set; }
-        public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<Project> Projects { get; set; }
+        public virtual DbSet<Category> Category { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.Property(e => e.CategoryId).ValueGeneratedNever();
@@ -42,13 +46,7 @@ namespace CrowdFunding.Models
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.Password).IsRequired();
-
                 entity.Property(e => e.ProfileUrl).HasMaxLength(255);
-
-                entity.Property(e => e.Username)
-                    .IsRequired()
-                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<Project>(entity =>
@@ -76,6 +74,8 @@ namespace CrowdFunding.Models
                     .HasForeignKey(d => d.PersonId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Project_Person");
+
+                entity.ToTable("Project", "dbo");
             });
         }
     }
