@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace CrowdFunding.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly CrowdFundingContext _context;
@@ -17,6 +18,7 @@ namespace CrowdFunding.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var projects = await _context.Projects
