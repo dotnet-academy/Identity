@@ -70,7 +70,7 @@ namespace CrowdFunding.Models
                     .HasConstraintName("FK_Project_Category");
 
                 entity.HasOne(d => d.Person)
-                    .WithMany(p => p.Project)
+                    .WithMany(p => p.Projects)
                     .HasForeignKey(d => d.PersonId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Project_Person");

@@ -7,13 +7,13 @@ namespace CrowdFunding.Models
     {
         public Person()
         {
-            Project = new HashSet<Project>();
+            Projects = new HashSet<Project>();
         }
 
         public string Firstname { get; set; }
         public string Lastname { get; set; }
         public string ProfileUrl { get; set; }
 
-        public ICollection<Project> Project { get; set; }
+        public ICollection<Project> Projects { get; set; }
     }
 }
