@@ -2,19 +2,28 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CrowdFunding.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Linq;
+using CrowdFunding.Models;
+using CrowdFunding.Core.Models;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CrowdFunding.Controllers
 {
     [Authorize]
     public class ProjectsController : Controller
     {
-        private readonly CrowdFundingContext _context;
+        private readonly IHostingEnvironment _env;
+        private readonly Core.CrowdFundingContext _context;
 
-        public ProjectsController(CrowdFundingContext context)
+        public ProjectsController(
+            IHostingEnvironment env,
+            Core.CrowdFundingContext context)
         {
+            _env = env;
             _context = context;
         }
 
@@ -24,6 +33,7 @@ namespace CrowdFunding.Controllers
             var projects = await _context.Projects
                 .Include(p => p.Category)
                 .Include(p => p.Person)
+                .Select(p => p.ToViewModel())
                 .ToListAsync();
 
             return View(projects);
@@ -37,7 +47,7 @@ namespace CrowdFunding.Controllers
                 return NotFound();
             }
 
-            return View(project);
+            return View(project.ToViewModel());
         }
 
         [Authorize]
@@ -52,18 +62,30 @@ namespace CrowdFunding.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Project project)
+        public async Task<IActionResult> Create(ProjectViewModel project)
         {
             if (!ModelState.IsValid) {
                 return BadRequest();
             }
-                
-            project.PersonId = UserId();
-            _context.Add(project);
 
+            var dbProject = project.ToModel();
+            dbProject.PersonId = UserId();
+
+            if (project.Picture.Length > 0) {
+                var savePath = Path.Join(
+                    _env.WebRootPath, "projects", project.Picture.FileName);
+
+                using (var stream = new FileStream(savePath, FileMode.Create)) {
+                    await project.Picture.CopyToAsync(stream);
+                }
+
+                dbProject.PictureUrl = $"projects/{project.Picture.FileName}";
+            }
+                
+            _context.Add(dbProject);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(long id)
@@ -77,12 +99,12 @@ namespace CrowdFunding.Controllers
             ViewData["CategoryId"] = new SelectList(
                 _context.Category, "CategoryId", "Name", project.CategoryId);
 
-            return View(project);
+            return View(project.ToViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, Project project)
+        public async Task<IActionResult> Edit(long id, ProjectViewModel project)
         {
             var dbProject = await GetProjectAsync(id);
 
@@ -119,7 +141,7 @@ namespace CrowdFunding.Controllers
                 return NotFound();
             }
 
-            return View(project);
+            return View(project.ToViewModel());
         }
 
         [HttpPost]
@@ -139,11 +161,12 @@ namespace CrowdFunding.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private Task<Project> GetProjectAsync(long id) =>
-            _context.Projects
+        private async Task<Project> GetProjectAsync(long id)
+        {
+            return await _context.Projects
                 .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.ProjectId == id &&
-                    p.PersonId == UserId());
+                .SingleAsync(p => p.ProjectId == id && p.PersonId == UserId());
+        }
 
         private long UserId() => 
             long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));

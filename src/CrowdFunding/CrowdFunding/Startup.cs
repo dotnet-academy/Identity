@@ -1,4 +1,6 @@
-﻿using CrowdFunding.Models;
+﻿using CrowdFunding.Core;
+using CrowdFunding.Core.Models;
+using CrowdFunding.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;

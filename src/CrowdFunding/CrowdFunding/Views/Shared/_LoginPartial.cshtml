@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<Person> SignInManager
-@inject UserManager<Person> UserManager
+@inject SignInManager<CrowdFunding.Core.Models.Person> SignInManager
+@inject UserManager<CrowdFunding.Core.Models.Person> UserManager
 
 @if (SignInManager.IsSignedIn(User))
 {

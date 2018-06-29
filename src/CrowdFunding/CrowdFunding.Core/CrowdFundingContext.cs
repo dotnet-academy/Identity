@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace CrowdFunding.Models
+using CrowdFunding.Core.Models;
+
+namespace CrowdFunding.Core
 {
     public partial class CrowdFundingContext : IdentityDbContext<Person, IdentityRole<long>, long>
     {
