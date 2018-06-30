@@ -1,0 +1,68 @@
+﻿@model CrowdFunding.Models.ProjectViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create</h2>
+
+<h4>Project</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" id="project-create-form" enctype="multipart/form-data" >
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class ="form-control" asp-items="Model.Categories"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Picture" class="control-label"></label>
+                <input asp-for="Picture" type="file" class="form-control" />
+                <span asp-validation-for="Picture" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Deadline" class="control-label"></label>
+                <input asp-for="Deadline" class="form-control" />
+                <span asp-validation-for="Deadline" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Goal" class="control-label"></label>
+                <input asp-for="Goal" class="form-control" />
+                <span asp-validation-for="Goal" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input id="submit-project" type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+
+        <div id="success-created" class="alert alert-success hidden" role="alert">
+            <p>Your project has been succesfully created!</p>
+
+            <a class="alert-link" asp-controller="projects" asp-action="create">Create new project</a> or
+            <a class="alert-link" asp-controller="projects" asp-action="index">View existing projects</a>
+        </div>
+
+        <div id="fail-created" class="alert alert-danger hidden" role="alert">
+            <p>There was an error creating your project...</p>
+
+            <a class="alert-link" asp-controller="projects" asp-action="create">Try again</a> or
+            <a class="alert-link" asp-controller="projects" asp-action="index">View existing projects</a>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
