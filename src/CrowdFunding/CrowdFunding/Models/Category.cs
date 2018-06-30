@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CrowdFunding.Core.Models
+namespace CrowdFunding.Models
 {
     public partial class Category
     {

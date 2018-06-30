@@ -1,20 +1,16 @@
-﻿using CrowdFunding.Core.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace CrowdFunding.Models
 {
-    public partial class ProjectViewModel
+    public partial class Project
     {
         public long ProjectId { get; set; }
 
+        [BindNever]
         public long PersonId { get; set; }
-
         public long CategoryId { get; set; }
-
-        public IFormFile Picture { get; set; }
-
         public string PictureUrl { get; set; }
 
         [Required]
@@ -29,7 +25,6 @@ namespace CrowdFunding.Models
         public decimal Goal { get; set; }
 
         public Category Category { get; set; }
-
         public Person Person { get; set; }
     }
 }

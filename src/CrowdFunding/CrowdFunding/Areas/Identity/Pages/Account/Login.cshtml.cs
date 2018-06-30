@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using CrowdFunding.Models;
-using CrowdFunding.Core.Models;
 
 namespace CrowdFunding.Areas.Identity.Pages.Account
 {

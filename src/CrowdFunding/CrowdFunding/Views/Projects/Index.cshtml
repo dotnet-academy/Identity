@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CrowdFunding.Models.ProjectViewModel>
+﻿@model IEnumerable<CrowdFunding.Models.Project>
 
 @{
     ViewData["Title"] = "Index";
@@ -40,7 +40,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                <img src="@item.PictureUrl" width="100" height="100" />
+                @Html.DisplayFor(modelItem => item.PictureUrl)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
