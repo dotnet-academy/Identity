@@ -1,5 +1,6 @@
 ﻿using CrowdFunding.Core.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -27,6 +28,8 @@ namespace CrowdFunding.Models
         public DateTime Deadline { get; set; }
 
         public decimal Goal { get; set; }
+
+        public SelectList Categories { get; set; }
 
         public Category Category { get; set; }
 

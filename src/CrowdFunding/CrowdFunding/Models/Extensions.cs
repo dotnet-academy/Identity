@@ -29,9 +29,9 @@ namespace CrowdFunding.Models
                 Deadline = project.Deadline,
                 Description = project.Description,
                 Goal = project.Goal,
+                Category = project.Category,
                 PersonId = project.PersonId,
                 Title = project.Title,
-                Category = project.Category,
                 Person = project.Person,
                 ProjectId = project.ProjectId
             };
