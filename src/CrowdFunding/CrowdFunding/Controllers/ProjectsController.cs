@@ -53,12 +53,10 @@ namespace CrowdFunding.Controllers
         [Authorize]
         public IActionResult Create()
         {
-            var project = new ProjectViewModel {
-                Categories = new SelectList(
-                    _context.Category, "CategoryId", "Name")
-            };
+            ViewData["CategoryId"] = new SelectList(
+                _context.Category, "CategoryId", "Name");
 
-            return View(project);
+            return View();
         }
 
         [HttpPost]
@@ -92,18 +90,16 @@ namespace CrowdFunding.Controllers
 
         public async Task<IActionResult> Edit(long id)
         {
-            var dbProject = await GetProjectAsync(id);
+            var project = await GetProjectAsync(id);
             
-            if (dbProject == null) {
+            if (project == null) {
                 return NotFound();
             }
 
-            var project = dbProject.ToViewModel();
-
-            project.Categories = new SelectList(
+            ViewData["CategoryId"] = new SelectList(
                 _context.Category, "CategoryId", "Name", project.CategoryId);
 
-            return View(project);
+            return View(project.ToViewModel());
         }
 
         [HttpPost]
@@ -131,7 +127,7 @@ namespace CrowdFunding.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            project.Categories = new SelectList(
+            ViewData["CategoryId"] = new SelectList(
                 _context.Category, "CategoryId", "Name", project.CategoryId);
 
             return View(project);
